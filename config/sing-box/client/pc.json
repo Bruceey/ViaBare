@@ -1,0 +1,279 @@
+{
+  "log": {
+    "disabled": false,
+    "level": "error",
+    "timestamp": true
+  },
+  "experimental": {
+    "clash_api": {
+      "external_controller": "127.0.0.1:9090",
+      "external_ui": "./ui",
+      "external_ui_download_url": "https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip",
+      "external_ui_download_detour": "🚀 Main Proxy"
+    },
+    "cache_file": {
+      "enabled": true,
+      "store_rdrc": true
+    }
+  },
+  "dns": {
+    "servers": [
+      {
+        "tag": "local",
+        "type": "udp",
+        "server": "223.5.5.5"
+      },
+      {
+        "tag": "aliDns",
+        "type": "https",
+        "server": "dns.alidns.com",
+        "path": "/dns-query",
+        "domain_resolver": "local"
+      },
+      {
+        "tag": "googleDns",
+        "type": "https",
+        "server": "dns.google",
+        "path": "/dns-query",
+        "domain_resolver": "aliDns",
+        "detour": "GLOBAL"
+      }
+    ],
+    "rules": [
+      {
+        "rule_set": ["geosite-cn"],
+        "server": "aliDns"
+      }
+    ],
+    "independent_cache": true,
+    "final": "googleDns"
+  },
+  "inbounds": [
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "::",
+      "listen_port": 7890
+    },
+    {
+      "type": "tun",
+      "tag": "tun-in",
+      "address": ["172.18.0.1/30", "fdfe:dcba:9876::1/126"],
+      "auto_route": true,
+      "strict_route": true,
+      "route_exclude_address": ["192.168.0.0/16", "fc00::/7"]
+    }
+  ],
+  "route": {
+    "auto_detect_interface": true,
+    "default_domain_resolver": "aliDns",
+    "final": "GLOBAL",
+    "rules": [
+      { "action": "sniff" },
+      {
+        "type": "logical",
+        "mode": "or",
+        "rules": [{ "port": 53 }, { "protocol": "dns" }],
+        "action": "hijack-dns"
+      },
+      {
+        "ip_is_private": true,
+        "outbound": "Direct"
+      },
+      {
+        "action": "route",
+        "rule_set": ["geoip-telegram", "geosite-telegram"],
+        "outbound": "✈️ Telegram"
+      },
+      {
+        "action": "route",
+        "rule_set": ["geosite-x", "category-ai-!cn", "geosite-google"],
+        "outbound": "🔍 Google"
+      },
+      {
+        "action": "route",
+        "rule_set": ["geosite-cn", "geoip-cn"],
+        "outbound": "Direct"
+      }
+    ],
+    "rule_set": [
+      {
+        "tag": "geosite-cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/cn.srs",
+        "download_detour": "🚀 Main Proxy"
+      },
+      {
+        "tag": "geoip-cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/cn.srs",
+        "download_detour": "🚀 Main Proxy"
+      },
+      {
+        "tag": "geosite-telegram",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/telegram.srs",
+        "download_detour": "🚀 Main Proxy"
+      },
+      {
+        "tag": "geoip-telegram",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geoip/telegram.srs",
+        "download_detour": "🚀 Main Proxy"
+      },
+      {
+        "tag": "category-ai-!cn",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/category-ai-!cn.srs",
+        "download_detour": "🚀 Main Proxy"
+      },
+      {
+        "tag": "geosite-x",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/x.srs",
+        "download_detour": "🚀 Main Proxy"
+      },
+      {
+        "tag": "geosite-google",
+        "type": "remote",
+        "format": "binary",
+        "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/refs/heads/sing/geo/geosite/google.srs",
+        "download_detour": "🚀 Main Proxy"
+      }
+    ]
+  },
+  "outbounds": [
+    {
+      "tag": "🚀 Main Proxy",
+      "type": "selector",
+      "interrupt_exist_connections": true,
+      "outbounds": ["cfls01", "cfls02", "cfls03"]
+    },
+    {
+      "tag": "🔍 Google",
+      "type": "selector",
+      "interrupt_exist_connections": true,
+      "outbounds": ["cfls01", "cfls02", "cfls03"]
+    },
+    {
+      "tag": "✈️ Telegram",
+      "type": "selector",
+      "interrupt_exist_connections": true,
+      "outbounds": ["cfls01", "cfls02", "cfls03"]
+    },
+    {
+      "tag": "GLOBAL",
+      "type": "selector",
+      "interrupt_exist_connections": true,
+      "outbounds": [
+        "🚀 Main Proxy",
+        "🔍 Google",
+        "✈️ Telegram",
+        "Direct"
+      ]
+    },
+    {
+      "tag": "Direct",
+      "type": "direct"
+    },
+    {
+      "tag": "cfls01",
+      "type": "vless",
+      "server": "172.64.53.86",
+      "server_port": 443,
+      "uuid": "$UUID",
+      "tls": {
+        "enabled": true,
+        "server_name": "$USER_DOMAIN",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/$PROXY_PATH",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol",
+        "headers": {
+          "Host": "$USER_DOMAIN"
+        }
+      },
+      "multiplex": {
+        "enabled": true,
+        "protocol": "h2mux",
+        "max_connections": 4,
+        "min_streams": 8,
+        "padding": false
+      }
+    },
+    {
+      "tag": "cfls02",
+      "type": "vless",
+      "server": "162.159.39.173",
+      "server_port": 443,
+      "uuid": "$UUID",
+      "tls": {
+        "enabled": true,
+        "server_name": "$USER_DOMAIN",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/$PROXY_PATH",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol",
+        "headers": {
+          "Host": "$USER_DOMAIN"
+        }
+      },
+      "multiplex": {
+        "enabled": true,
+        "protocol": "h2mux",
+        "max_connections": 4,
+        "min_streams": 8,
+        "padding": false
+      }
+    },
+    {
+      "tag": "cfls03",
+      "type": "vless",
+      "server": "162.159.44.148",
+      "server_port": 443,
+      "uuid": "$UUID",
+      "tls": {
+        "enabled": true,
+        "server_name": "$USER_DOMAIN",
+        "utls": {
+          "enabled": true,
+          "fingerprint": "chrome"
+        }
+      },
+      "transport": {
+        "type": "ws",
+        "path": "/$PROXY_PATH",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol",
+        "headers": {
+          "Host": "$USER_DOMAIN"
+        }
+      },
+      "multiplex": {
+        "enabled": true,
+        "protocol": "h2mux",
+        "max_connections": 4,
+        "min_streams": 8,
+        "padding": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "log": {
+    "disabled": false,
+    "level": "error",
+    "output": "/var/log/sing-box.log",
+    "timestamp": true
+  },
+  "inbounds": [
+    {
+      "type": "vless",
+      "tag": "vless-in",
+      "listen": "127.0.0.1",
+      "listen_port": 10086,
+      "users": [{ "uuid": "$UUID" }],
+      "transport": {
+        "type": "ws",
+        "path": "/$PROXY_PATH",
+        "max_early_data": 2048,
+        "early_data_header_name": "Sec-WebSocket-Protocol"
+      },
+      "multiplex": {
+        "enabled": true,
+        "padding": false
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "direct",
+      "type": "direct"
+    },
+    {
+      "tag": "warp",
+      "type": "socks",
+      "server": "127.0.0.1",
+      "server_port": 40000
+    }
+  ],
+  "route": {
+    "final": "warp"
+  }
+}

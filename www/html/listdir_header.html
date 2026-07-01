@@ -1,0 +1,105 @@
+<style>
+    /* 1. 样式重置与全局设置 */
+    body { font-family: -apple-system, "Segoe UI", Arial, sans-serif; padding: 20px; background: #f6f8fa; }
+    
+    /* 关键：隐藏 Nginx 默认生成的旧标题、横线和原始文本块 */
+    h1, hr, pre { display: none; } 
+    
+    /* 2. 表格容器美化 */
+    .container { background: #fff; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 1000px; margin: auto; overflow: hidden; }
+    header { padding: 15px 20px; border-bottom: 1px solid #eee; background: #fff; font-size: 18px;}
+    
+    /* 3. 表格对齐与排版 */
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+    th { text-align: left; background: #fafafa; padding: 12px 20px; color: #666; border-bottom: 1px solid #eee; font-weight: bold;}
+    td { padding: 10px 20px; border-bottom: 1px solid #f0f0f0; font-family: "SFMono-Regular", Consolas, monospace; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    tr:hover { background: #f8f9fa; }
+    
+    /* 4. 各列宽度固定 */
+    .name-col { width: 55%; }
+    .time-col { width: 25%; color: #888; }
+    .size-col { width: 20%; text-align: right; color: #28a745; font-weight: 600; }
+    a { color: #0366d6; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+</style>
+
+<div class="container">
+    <header><strong>📂 文件库索引</strong></header>
+    <table>
+        <thead>
+            <tr>
+                <th class="name-col">名称</th>
+                <th class="time-col">修改时间</th>
+                <th class="size-col">大小</th>
+            </tr>
+        </thead>
+        <tbody id="list">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // 【逻辑 1】互斥的文件大小转换 (精确到特定小数位)
+    function formatSize(bytes) {
+        if (!bytes || bytes === "-" || isNaN(bytes)) return "-";
+        const b = parseInt(bytes);
+        const KB = 1024, MB = 1024 * 1024, GB = 1024 * 1024 * 1024;
+
+        if (b >= GB) return (b / GB).toFixed(3) + ' GB';
+        else if (b >= MB) return (b / MB).toFixed(1) + ' MB';
+        else if (b >= KB) return Math.ceil(b / KB) + ' KB';
+        else return b + ' B';
+    }
+
+    // 【逻辑 2】UTC 时间转本地时间
+    function convertToLocalTime(nginxTimeStr) {
+        const date = new Date(nginxTimeStr + " UTC");
+        if (isNaN(date.getTime())) return nginxTimeStr;
+
+        const y = date.getFullYear();
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const hh = String(date.getHours()).padStart(2, '0');
+        const mm = String(date.getMinutes()).padStart(2, '0');
+        
+        return `${y}-${m}-${d} ${hh}:${mm}`;
+    }
+
+    // 【逻辑 3】页面加载后解析并重新渲染
+    window.onload = function() {
+        const pre = document.getElementsByTagName('pre')[0];
+        if (!pre) return;
+        
+        const list = document.getElementById('list');
+        const lines = pre.innerHTML.trim().split('\n');
+
+        lines.forEach(line => {
+            // 互斥判断 1: 是否是返回上一级
+            if (line.includes('">../</a>')) {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="name-col"><a href="../" style="color:#d73a49; font-weight:bold;">🔙 .. (返回上一级)</a></td>
+                    <td class="time-col">-</td>
+                    <td class="size-col">-</td>
+                `;
+                list.appendChild(tr);
+            } 
+            // 互斥判断 2: 正常的文件夹或文件
+            else {
+                const match = line.match(/(<a.*?>.*?<\/a>)\s+(\d{2}-[a-zA-Z]{3}-\d{4}\s\d{2}:\d{2})\s+(\d+|-)$/);
+                if (match) {
+                    const linkHtml = match[1], time = match[2], size = match[3];
+                    const tr = document.createElement('tr');
+                    const isDir = linkHtml.includes('/</a>');
+                    
+                    tr.innerHTML = `
+                        <td class="name-col">${isDir ? '📁' : '📄'} ${linkHtml}</td>
+                        <td class="time-col">${convertToLocalTime(time)}</td>
+                        <td class="size-col">${size === '-' ? '-' : formatSize(size)}</td>
+                    `;
+                    list.appendChild(tr);
+                }
+            }
+        });
+    };
+</script>
