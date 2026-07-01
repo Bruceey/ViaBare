@@ -23,10 +23,10 @@ white(){ echo -e "\033[37m\033[01m$1\033[0m";}
 readp(){ read -p "$(yellow "$1")" $2;}
 
 
-curl -fsSL https://github.com/Bruceey/项目名/archive/refs/heads/main.tar.gz | tar -xz -C /tmp/
+curl -fsSL https://github.com/Bruceey/ViaBare/archive/refs/heads/main.tar.gz | tar -xz -C /tmp/
 
-project_dir=/tmp/项目名
-cd /tmp/项目名
+project_dir=/tmp/ViaBare
+cd /tmp/ViaBare
 
 export USER_DOMAIN=$1
 . setup.sh

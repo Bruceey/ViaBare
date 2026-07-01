@@ -22,17 +22,18 @@ wget -O - https://openresty.org/package/pubkey.gpg | gpg --dearmor -o /usr/share
 _arch=$(dpkg --print-architecture)
 echo "deb [arch=$_arch signed-by=/usr/share/keyrings/openresty.gpg] https://openresty.org/package/$([ "$_arch" = "arm64" ] && echo "arm64/")ubuntu $(lsb_release -sc) main" | tee /etc/apt/sources.list.d/openresty.list > /dev/null
 
+
 # warp-svc密钥仓库
 # Add cloudflare gpg key
-curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
+# curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+# echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 
 apt-get update
-apt-get -y install openresty sing-box cloudflare-warp
+apt-get -y install openresty sing-box #cloudflare-warp
 
-warp-cli registration new
-warp-cli mode proxy
-warp-cli connect
+# warp-cli registration new
+# warp-cli mode proxy
+# warp-cli connect
 
 # 2. 生成必要的文件
 # 此时默认用户是sing-box:sing-box
@@ -65,7 +66,7 @@ openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
 export CERT_PATH=$ssl_dir/cert.pem
 export KEY_PATH=$ssl_dir/private.key
 
-envsubst '$UUID $PROXY_PATH' < config/sing-box/server/warp-svc.json > /etc/sing-box/config.json
+envsubst '$UUID $PROXY_PATH' < config/sing-box/server/config.json > /etc/sing-box/config.json
 envsubst '$USER_DOMAIN $PROXY_PATH $URL_TOKEN $CERT_PATH $KEY_PATH' < ./config/openresty/nginx.conf > /usr/local/openresty/nginx/conf/nginx.conf
 
 envsubst '$USER_DOMAIN $PROXY_PATH $UUID' < ./config/sing-box/client/android.json > $sub_dir/android.json

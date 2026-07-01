@@ -1,0 +1,55 @@
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+*.bak
+
+# 编译和临时文件
+*.o
+*.so
+*.exe
+*.out
+*.tmp
+*.temp
+
+# 日志文件
+*.log
+
+# 敏感配置（重要！）
+.env
+.env.local
+*.key
+*.pem
+*.crt
+*.p12
+
+# Shell 历史记录
+.bash_history
+.zsh_history
+.ash_history
+.history
+
+# 备份文件
+*.orig
+*.rej
+
+# 临时输出目录
+build/
+dist/
+tmp/
+temp/
+
+# 压缩包（看情况，可能被版本控制需要）
+*.zip
+*.tar.gz
+*.tgz
+
+# 测试覆盖率
+coverage/
