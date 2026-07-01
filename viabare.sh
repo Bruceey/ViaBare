@@ -22,11 +22,10 @@ blue(){ echo -e "\033[36m\033[01m$1\033[0m";}
 white(){ echo -e "\033[37m\033[01m$1\033[0m";}
 readp(){ read -p "$(yellow "$1")" $2;}
 
-
-curl -fsSL https://github.com/Bruceey/ViaBare/archive/refs/heads/main.tar.gz | tar -xz -C /tmp/
-
 project_dir=/tmp/ViaBare
-cd /tmp/ViaBare
+mkdir $project_dir
+curl -fsSL https://github.com/Bruceey/ViaBare/archive/refs/heads/main.tar.gz | tar -x --strip-components=1 -C $project_dir
+cd $project_dir
 
 export USER_DOMAIN=$1
 . setup.sh

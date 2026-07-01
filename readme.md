@@ -29,7 +29,9 @@ Unlike other bloated UI panels or script engines that demand premium, expensive 
 Run the following command on your server to start the automated installation. The script is highly optimized to guide you through the process seamlessly:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh | bash -s <cf托管域名>
+curl -fsSLO https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh
+chmod +x viabare.sh
+./viabare.sh <cf托管域名>
 ```
 
 ---
