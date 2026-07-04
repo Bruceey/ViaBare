@@ -2,7 +2,54 @@
 
 一个适用于低成本 VPS 的代理部署方案，整体采用 **Cloudflare CDN → OpenResty → Sing-box** 的架构，通过 Shell 一键脚本完成部署。
 
-## 项目特点
+## 1. 使用要求
+
+部署前请确保：
+
+- 已拥有一个域名
+- 域名已托管到 Cloudflare
+- 添加DNS解析记录，且开启 Cloudflare 代理（小黄云）
+- VPS 开放443 端口
+
+## 2. 安装
+
+```bash
+curl -fsSLO https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh
+chmod +x viabare.sh
+./viabare.sh <cf托管域名> # 如 ./viabare.sh example.com
+```
+
+## 3. 客户端说明
+
+本项目使用 **Sing-box 官方内核**，不同平台建议如下。
+
+|  平台   |          客户端          |
+| :-----: | :----------------------: |
+| Android | SFM (sing-box官方客户端) |
+|  macOS  | SFM (sing-box官方客户端) |
+| Windows |  Sing-box 官方裸核运行   |
+
+注意：
+
+```
+# SFM客户端
+直接复制订阅链接到客户端，更新订阅链接即可
+
+# windows运行
+# 1. 下载windows的sing-box内核可执行性文件
+# 2. 根据订阅链接将配置文件下载到本地
+curl -fsSL "你的订阅链接" -o config.json
+# 3. 运行
+sudo sing-box run -c congfig.json
+```
+
+## 4. web 管理页面
+
+本项目已启用 Clash API，可通过浏览器访问以下地址管理节点、切换策略及查看运行状态：
+
+`http://localhost:9090 `
+
+## 5. 项目特点
 
 - Cloudflare CDN 边缘节点接入，可使用优选 IP
 - Cloudflare 主动回源，无需 Cloudflare Tunnel
@@ -12,7 +59,7 @@
 - 一键自动部署，配置简单
 - 支持防主动探测
 
-## 架构
+## 6. 架构
 
 ```text
 客户端
@@ -33,7 +80,7 @@ Sing-box
 Internet
 ```
 
-## 工作原理
+## 7. 工作原理
 
 所有客户端流量首先进入 Cloudflare CDN，由 Cloudflare 回源至 VPS 上的 OpenResty。
 
@@ -44,60 +91,13 @@ OpenResty 根据访问路径进行分流：
 
 由于 Sing-box 不直接对公网提供服务，因此可以有效降低主动探测风险，同时隐藏真实代理服务。
 
-## 优势
+## 8. 优势
 
 - 相较于 Cloudflare Tunnel，少一层转发，延迟更低
 - 无需运行 cloudflared，更稳定、更省资源
 - Cloudflare 隐藏源站 IP，提高安全性
 - 支持优选 IP，改善接入质量
 - 适合线路质量不好、以及ip出口质量差的 VPS
-
-## 使用要求
-
-部署前请确保：
-
-- 已拥有一个域名
-- 域名已托管到 Cloudflare
-- 添加DNS解析记录，且开启 Cloudflare 代理（小黄云）
-- VPS 开放443 端口
-
-## 安装
-
-```bash
-curl -fsSLO https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh
-chmod +x viabare.sh
-./viabare.sh <cf托管域名> # 如 ./viabare.sh example.com
-```
-
-## 客户端说明
-
-本项目使用 **Sing-box 官方内核**，不同平台建议如下。
-
-|  平台   |          客户端          |
-| :-----: | :----------------------: |
-| Android | SFM (sing-box官方客户端) |
-|  macOS  | SFM (sing-box官方客户端) |
-| Windows |  Sing-box 官方裸核运行   |
-
-注意： 
-
-```
-# SFM客户端
-直接复制订阅链接到客户端，更新订阅链接即可
-
-# windows运行
-# 1. 下载windows的sing-box内核可执行性文件
-# 2. 根据订阅链接将配置文件下载到本地
-curl -fsSL "你的订阅链接" -o config.json
-# 3. 运行
-sudo sing-box run -c congfig.json
-```
-
-## web 管理页面
-
-本项目已启用 Clash API，可通过浏览器访问以下地址管理节点、切换策略及查看运行状态：
-
- ```http://localhost:9090 ```
 
 ## 免责声明
 
