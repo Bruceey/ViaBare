@@ -1,1 +1,0 @@
-vless://${UUID}@162.159.44.148:443?encryption=none&security=tls&sni=${USER_DOMAIN}&type=ws&host=${USER_DOMAIN}&path=%2F${PROXY_PATH}&fp=chrome#cfls03

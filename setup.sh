@@ -25,15 +25,11 @@ echo "deb [arch=$_arch signed-by=/usr/share/keyrings/openresty.gpg] https://open
 
 # warp-svc密钥仓库
 # Add cloudflare gpg key
-# curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
-# echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
+curl -fsSL https://pkg.cloudflareclient.com/pubkey.gpg | gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/cloudflare-client.list
 
 apt-get update
-apt-get -y install openresty sing-box #cloudflare-warp
-
-# warp-cli registration new
-# warp-cli mode proxy
-# warp-cli connect
+apt-get -y install openresty sing-box cloudflare-warp
 
 # 2. 生成必要的文件
 # 此时默认用户是sing-box:sing-box
@@ -42,17 +38,11 @@ touch /var/log/sing-box.log
 chown sing-box:sing-box /var/log/sing-box.log
 
 sub_dir=/data/www/subscribe
-mkdir /data
+mkdir -p /data
 cp -r ./www /data/
-mkdir $sub_dir
+mkdir -p $sub_dir
 
 # 3. 生成服务配置文件
-export UUID=$(uuidgen | tr 'A-F' 'a-f')
-export PROXY_PATH=$(LC_ALL=C tr -dc 'A-Za-z0-9_-' < /dev/urandom | head -c 16)
-# openresty配置
-export URL_TOKEN=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32)
-
-
 # 生成自签证书
 ssl_dir=/etc/ssl/${USER_DOMAIN}
 mkdir -p $ssl_dir
@@ -66,22 +56,26 @@ openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
 export CERT_PATH=$ssl_dir/cert.pem
 export KEY_PATH=$ssl_dir/private.key
 
-envsubst '$UUID $PROXY_PATH' < config/sing-box/server/config.json > /etc/sing-box/config.json
+envsubst '$UUID $PROXY_PATH' < config/sing-box/server/warp-svc.json > /etc/sing-box/config.json
 envsubst '$USER_DOMAIN $PROXY_PATH $URL_TOKEN $CERT_PATH $KEY_PATH' < ./config/openresty/nginx.conf > /usr/local/openresty/nginx/conf/nginx.conf
 
 envsubst '$USER_DOMAIN $PROXY_PATH $UUID' < ./config/sing-box/client/android.json > $sub_dir/android.json
 envsubst '$USER_DOMAIN $PROXY_PATH $UUID' < ./config/sing-box/client/pc.json > $sub_dir/pc.json
-envsubst '$USER_DOMAIN $PROXY_PATH $UUID' < ./config/sing-box/client/universal.txt > $sub_dir/universal.txt
-
-
-
 
 chown -R nobody:nogroup /data
 chmod -R 755 /data/www
 find /data/www -type f -exec chmod 644 {} +
 
+warp-cli registration new
+warp-cli mode proxy
+warp-cli connect
 
+systemctl enable sing-box.service
 systemctl restart sing-box.service
 systemctl reload openresty.service
 
 
+# 如果装cloudflared，需要写
+#echo "127.0.0.1  $USER_DOMAIN"
+#并且配置tunnel路由时写https://$USER_DOMAIN:443
+# 还需要配置cf origin server的15年证书

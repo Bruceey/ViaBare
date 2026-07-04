@@ -23,17 +23,23 @@ white(){ echo -e "\033[37m\033[01m$1\033[0m";}
 readp(){ read -p "$(yellow "$1")" $2;}
 
 project_dir=/tmp/ViaBare
-mkdir $project_dir
-curl -fsSL https://github.com/Bruceey/ViaBare/archive/refs/heads/main.tar.gz | tar -x --strip-components=1 -C $project_dir
+mkdir -p $project_dir
+curl -fsSL https://github.com/Bruceey/ViaBare/archive/refs/heads/main.tar.gz | tar -xz --strip-components=1 -C $project_dir
 cd $project_dir
 
 export USER_DOMAIN=$1
+export UUID=$(uuidgen | tr 'A-F' 'a-f')
+export PROXY_PATH=$(LC_ALL=C tr -dc 'A-Za-z0-9_-' < /dev/urandom | head -c 16)
+# openresty配置
+export URL_TOKEN=$(LC_ALL=C tr -dc 'A-Za-z0-9' < /dev/urandom | head -c 32)
+
 . setup.sh
 
 cd /
 rm -rf $project_dir
 
 green "=========================================="
-echo "安卓端sing-box订阅链接：https://${USER_DOMAIN}/subscribe?token=${URL_TOKEN}&os=android"
-echo "pc端sing-box订阅链接：https://${USER_DOMAIN}/subscribe?token=${URL_TOKEN}&os=pc"
+echo "安卓端sing-box订阅链接：https://${USER_DOMAIN}/subscribe?token=${URL_TOKEN}&os=android" | tee -a $HOME/subscribe.txt
+echo "pc端sing-box订阅链接：https://${USER_DOMAIN}/subscribe?token=${URL_TOKEN}&os=pc" | tee -a $HOME/subscribe.txt
+echo "后续可在路径$HOME/subscribe.txt中找到订阅链接"
 green "=========================================="

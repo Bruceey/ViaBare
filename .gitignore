@@ -53,3 +53,4 @@ temp/
 
 # 测试覆盖率
 coverage/
+test*
