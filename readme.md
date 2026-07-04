@@ -44,10 +44,6 @@ OpenResty 根据访问路径进行分流：
 
 由于 Sing-box 不直接对公网提供服务，因此可以有效降低主动探测风险，同时隐藏真实代理服务。
 
-**网站主页:**
-
-![网站主页](./config/index.png) 
-
 ## 优势
 
 - 相较于 Cloudflare Tunnel，少一层转发，延迟更低
@@ -72,6 +68,36 @@ curl -fsSLO https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh
 chmod +x viabare.sh
 ./viabare.sh <cf托管域名> # 如 ./viabare.sh example.com
 ```
+
+## 客户端说明
+
+本项目使用 **Sing-box 官方内核**，不同平台建议如下。
+
+|  平台   |          客户端          |
+| :-----: | :----------------------: |
+| Android | SFM (sing-box官方客户端) |
+|  macOS  | SFM (sing-box官方客户端) |
+| Windows |  Sing-box 官方裸核运行   |
+
+注意： 
+
+```
+# SFM客户端
+直接复制订阅链接到客户端，更新订阅链接即可
+
+# windows运行
+# 1. 下载windows的sing-box内核可执行性文件
+# 2. 根据订阅链接将配置文件下载到本地
+curl -fsSL "你的订阅链接" -o config.json
+# 3. 运行
+sudo sing-box run -c congfig.json
+```
+
+## web 管理页面
+
+本项目已启用 Clash API，可通过浏览器访问以下地址管理节点、切换策略及查看运行状态：
+
+ ```http://localhost:9090 ```
 
 ## 免责声明
 
