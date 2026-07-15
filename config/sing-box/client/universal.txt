@@ -1,0 +1,3 @@
+vless://$UUID@$CF_IP1:443?security=tls&sni=$USER_DOMAIN&type=ws&host=$USER_DOMAIN&path=%2F$PROXY_PATH&ed=2048&eh=Sec-WebSocket-Protocol#cfvl01
+vless://$UUID@$CF_IP2:443?security=tls&sni=$USER_DOMAIN&type=ws&host=$USER_DOMAIN&path=%2F$PROXY_PATH&ed=2048&eh=Sec-WebSocket-Protocol#cfvl02
+vless://$UUID@$CF_IP3:443?security=tls&sni=$USER_DOMAIN&type=ws&host=$USER_DOMAIN&path=%2F$PROXY_PATH&ed=2048&eh=Sec-WebSocket-Protocol#cfvl03

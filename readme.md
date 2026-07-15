@@ -14,34 +14,25 @@
 ## 2. 安装
 
 ```bash
-curl -fsSLO https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh
-chmod +x viabare.sh
-./viabare.sh <cf托管域名> # 如 ./viabare.sh example.com
+# 例如：USER_DOMAIN=example.com bash <(...)
+USER_DOMAIN=<cf托管域名> bash <(curl -fsSL https://raw.githubusercontent.com/Bruceey/ViaBare/main/viabare.sh)
 ```
 
 ## 3. 客户端说明
 
-本项目使用 **Sing-box 官方内核**，不同平台建议如下。
+- 本项目使用 **Sing-box 官方内核**，推荐使用sing-box官方GUI客户端。
 
-|  平台   |          客户端          |
-| :-----: | :----------------------: |
-| Android | SFM (sing-box官方客户端) |
-|  macOS  | SFM (sing-box官方客户端) |
-| Windows |  Sing-box 官方裸核运行   |
+|  平台   |                            客户端                            |
+| :-----: | :----------------------------------------------------------: |
+| Android | [SFA (sing-box官方客户端)](https://github.com/SagerNet/sing-box/releases) |
+|  MacOS  | [SFM (sing-box官方客户端)](https://github.com/SagerNet/sing-box/releases) |
+| Windows | [SFW (sing-box官方客户端)](https://github.com/SagerNet/sing-box/releases) |
 
-注意：
+直接复制订阅链接到客户端，更新订阅链接即可.
 
-```
-# SFM客户端
-直接复制订阅链接到客户端，更新订阅链接即可
+- **其他客户端**
 
-# windows运行
-# 1. 下载windows的sing-box内核可执行性文件
-# 2. 根据订阅链接将配置文件下载到本地
-curl -fsSL "你的订阅链接" -o config.json
-# 3. 运行
-sudo sing-box run -c congfig.json
-```
+  也可以使用通用订阅链接导入其他客户端
 
 ## 4. web 管理页面
 
